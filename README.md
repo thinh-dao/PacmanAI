@@ -3,10 +3,10 @@ This is the term project for Artificial Intelligence course.
 Link: https://inst.eecs.berkeley.edu/~cs188/sp21/projects/
 Acknowledgement: The project is based on The project is built on top of the PacMan Project from UC Berkley’s CS188: Introduction to Artificial Intelligence course.
 
-<span style='color: red;'>Note: Create new branch for each part to avoid conflicts</span>
+ <span style="color: green"> Note: Create new branch for each part to avoid conflicts </span>
+
 ## Progress:
 ### 1. Modify the game to change difficulty
-_Instruction_: Edit ghostAgents.py, environment.py, 
 - [x] Include more ghosts (Up to 8 ghosts)
 - [x] Directional Ghosts (Choose move that minimizes mahattan distance)
 - [x] Random Ghosts
