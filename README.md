@@ -7,7 +7,7 @@ Acknowledgement: The project is based on The project is built on top of the PacM
 ## Progress:
 ### 1. Modify the game to change difficulty
 _Instruction_: Edit ghostAgents.py, environment.py, 
-- [ x ] Include more ghosts (Up to 8 ghosts)
+- [x] Include more ghosts (Up to 8 ghosts)
 - [x] Directional Ghosts (Choose move that minimizes mahattan distance)
 - [x] Random Ghosts
 - [ ] Random Ghosts with patterns (tendency to move horizontally and vertically)
