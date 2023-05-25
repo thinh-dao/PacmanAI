@@ -3,7 +3,7 @@ This is the term project for Artificial Intelligence course.
 Link: https://inst.eecs.berkeley.edu/~cs188/sp21/projects/
 Acknowledgement: The project is based on The project is built on top of the PacMan Project from UC Berkley’s CS188: Introduction to Artificial Intelligence course.
 
-$${\color{red}Note: Create new branch for each part to avoid conflicts$$
+$${\color{red}Note: Create new branch for each part to avoid conflicts}$$
 
 ## Progress:
 ### 1. Modify the game to change difficulty
