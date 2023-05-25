@@ -5,6 +5,6 @@ Acknowledgement: The project is based on The project is built on top of the PacM
 
 ## Progress:
 ### 1. Modify the game to change difficulty
-- [x] Include more ghosts (Up to 8 ghosts)
+- ([]) Include more ghosts (Up to 8 ghosts)
 - [] 
 - [ ] Item 3
