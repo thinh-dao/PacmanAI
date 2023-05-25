@@ -17,8 +17,8 @@ Note: Create new branch for each part to avoid conflicts.
 
 ### 2. Minimax Pacman & Ghosts
 - [ ] Implement baseline algorithms of Minimax, Expectimax with Alpha-Beta pruning
-- [ ] Implement Minimax, Expectimax with Stochastic Gradient Descent (SGD) with hand-crafted feature sets for evaluation function.
-- [ ] Implement Minimax, Expectimax Ghosts.
+- [ ] Implement Minimax, Expectimax with Stochastic Gradient Descent (SGD) with hand-crafted feature sets for evaluation function
+- [ ] Implement Minimax, Expectimax Ghosts
 - [ ] Implement Neural Networks for evaluation functions
 
 ### 3. Reinforcement Learning
