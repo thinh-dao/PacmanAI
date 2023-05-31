@@ -16,8 +16,6 @@ from game import *
 from learningAgents import ReinforcementAgent
 from featureExtractors import *
 
-import gridworld
-
 import random,util,math
 import copy
 
