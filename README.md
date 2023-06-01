@@ -11,8 +11,8 @@ Note: Create new branch for each part to avoid conflicts.
 - [x] Directional Ghosts (Choose move that minimizes mahattan distance)
 - [x] Random Ghosts
 - [ ] Random Ghosts with patterns (tendency to move horizontally and vertically)
-- [ ] Intelligent Ghosts (Choose move that minimizes __true__ distance with some stochasticity)
-- [ ] Incorporate different types of ghosts to the game (Right now only __all__ random ghosts or __all__ directional ghosts are possible
+- [x] Intelligent Ghosts (Choose move that minimizes __true__ distance with some stochasticity)
+- [x] Incorporate different types of ghosts to the game (Right now only __all__ random ghosts or __all__ directional ghosts are possible
 - [ ] Implement ghosts that can eat dots
 
 ### 2. Minimax Pacman & Ghosts
