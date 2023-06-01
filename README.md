@@ -13,17 +13,17 @@ Note: Create new branch for each part to avoid conflicts.
 - [ ] Random Ghosts with patterns (tendency to move horizontally and vertically)
 - [x] Intelligent Ghosts (Choose move that minimizes __true__ distance with some stochasticity)
 - [x] Incorporate different types of ghosts to the game (Right now only __all__ random ghosts or __all__ directional ghosts are possible
-- [ ] Implement ghosts that can eat dots
+- [x] Implement ghosts that can eat dots
 
 ### 2. Minimax Pacman & Ghosts
-- [ ] Implement baseline algorithms of Minimax, Expectimax with Alpha-Beta pruning
+- [x] Implement baseline algorithms of Minimax, Expectimax with Alpha-Beta pruning
 - [ ] Implement Minimax, Expectimax with Stochastic Gradient Descent (SGD) with hand-crafted feature sets for evaluation function
 - [ ] Implement Minimax, Expectimax Ghosts
 - [ ] Implement Neural Networks for evaluation functions
 
 ### 3. Reinforcement Learning
 - [x] Approximate Q-learning with hand-crafted feature sets
-- [ ] Baseline (Double) Deep Q-Learning 
+- [x] Baseline (Double) Deep Q-Learning 
 - [ ] (Double) Deep Q-Learning with actor-critic
 - [ ] (Double) Deep Q-Learning with dual networks
 - [ ] (Double) Deep Q-Learning with prioritized relay
