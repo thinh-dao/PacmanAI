@@ -285,6 +285,7 @@ class ClassicGameRules:
 
     def newGame(self, layout, pacmanAgent, ghostAgents, display, quiet=False, catchExceptions=False):
         agents = [pacmanAgent] + ghostAgents[:layout.getNumGhosts()]
+
         initState = GameState()
         initState.initialize(layout, len(ghostAgents))
         game = Game(agents, display, self, catchExceptions=catchExceptions)
@@ -590,7 +591,7 @@ def readCommand(argv):
 
     # Choose a ghost agent
     ghostType = loadAgent(options.ghost, noKeyboard)
-    args['ghosts'] = [ghostType(i+1) for i in range(options.numGhosts)]
+    args['ghosts'] = [ghostType(index=i+1, trueDist=args['layout'].trueDist) for i in range(options.numGhosts)]
 
     # Choose a display format
     if options.quietGraphics:
@@ -639,6 +640,7 @@ def loadAgent(pacman, nographics):
             continue
         moduleNames = [f for f in os.listdir(
             moduleDir) if f.endswith('gents.py')]
+        
         for modulename in moduleNames:
             try:
                 module = __import__(modulename[:-3])
