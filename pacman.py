@@ -11,7 +11,6 @@
 # Student side autograding was added by Brad Miller, Nick Hay, and
 # Pieter Abbeel (pabbeel@cs.berkeley.edu).
 
-
 """
 Pacman.py holds the logic for the classic pacman game along with the main
 code to run a game.  This file is divided into three sections:
@@ -79,7 +78,7 @@ class GameState:
 
     # static variable keeps track of which states have had getLegalActions called
     explored = set()
-
+    TypeOfGhost="NotEat"
     def getAndResetExplored():
         tmp = GameState.explored.copy()
         GameState.explored = set()
@@ -109,7 +108,7 @@ class GameState:
 
         # Copy current state
         state = GameState(self)
-
+        
         # Let agent's logic deal with its action's effects on the board
         if agentIndex == 0:  # Pacman is moving
             state.data._eaten = [False for i in range(state.getNumAgents())]
@@ -337,13 +336,13 @@ class ClassicGameRules:
         return 0
 
 
-class PacmanRules:
+class PacmanRules: 
     """
     These functions govern how pacman interacts with his environment under
     the classic game rules.
     """
     PACMAN_SPEED = 1
-
+    # Find the LegalActions of Pacman 
     def getLegalActions(state):
         """
         Returns a list of possible actions.
@@ -432,8 +431,28 @@ class GhostRules:
         vector = Actions.directionToVector(action, speed)
         ghostState.configuration = ghostState.configuration.generateSuccessor(
             vector)
+        #Eat
+        if ("Eat"==GameState.TypeOfGhost):
+            next = ghostState.configuration.getPosition()
+            nearest = nearestPoint(next)
+            if manhattanDistance(nearest, next) <= 0.5:
+                # Remove food
+                GhostRules.consume(nearest, state)
     applyAction = staticmethod(applyAction)
-
+    # CMK code for ghost to consume food
+    def consume(position, state):
+        x, y = position
+        # Eat food
+        if state.data.food[x][y]:
+            state.data.food = state.data.food.copy()
+            state.data.food[x][y] = False
+            state.data._foodEaten = position
+            # TODO: cache numFood?
+            numFood = state.getNumFood()
+            if numFood == 0 and not state.data._lose:
+                state.data._win = True
+    consume = staticmethod(consume)
+    # CMK end
     def decrementTimer(ghostState):
         timer = ghostState.scaredTimer
         if timer == 1:
@@ -598,9 +617,11 @@ def readCommand(argv):
         options.numIgnore = int(agentOpts['numTrain'])
 
     # Choose a ghost agent
-    ghostType = loadAgent(options.ghost, noKeyboard)
+    ghostType = loadAgent(options.ghost, noKeyboard)# GhostType is class loaded by the name options.ghost
+    #if (ghostType=="RandomGhost2"):  
     args['ghosts'] = [ghostType(i+1) for i in range(options.numGhosts)]
-
+    if("Eat" in options.ghost):
+        GameState.TypeOfGhost="Eat"
     # Choose a display format
     if options.quietGraphics:
         import textDisplay
@@ -630,7 +651,6 @@ def readCommand(argv):
         recorded['display'] = args['display']
         replayGame(**recorded)
         sys.exit(0)
-
     return args
 
 
