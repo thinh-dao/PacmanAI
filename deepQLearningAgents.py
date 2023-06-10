@@ -29,6 +29,7 @@ class PacmanDeepQAgent(PacmanQAgent):
             layout_instantiated = layout.getLayout(layout_input)
         else:
             layout_instantiated = layout_input
+        
         self.state_dim = self.get_state_dim(layout_instantiated)
         self.initialize_q_networks(self.state_dim)
 

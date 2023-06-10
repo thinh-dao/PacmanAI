@@ -72,6 +72,15 @@ class GameState:
     Note that in classic Pacman, Pacman is always agent 0.
     """
 
+    def __init__(self, prevState=None):
+        """
+        Generates a new state by copying information from its predecessor.
+        """
+        if prevState != None:  # Initial state
+            self.data = GameStateData(prevState.data)
+        else:
+            self.data = GameStateData()
+
     ####################################################
     # Accessor methods: use these to access state data #
     ####################################################
@@ -225,15 +234,6 @@ class GameState:
     # You shouldn't need to call these directly #
     #############################################
 
-    def __init__(self, prevState=None):
-        """
-        Generates a new state by copying information from its predecessor.
-        """
-        if prevState != None:  # Initial state
-            self.data = GameStateData(prevState.data)
-        else:
-            self.data = GameStateData()
-
     def deepCopy(self):
         state = GameState(self)
         state.data = self.data.deepCopy()
@@ -252,7 +252,6 @@ class GameState:
         return hash(self.data)
 
     def __str__(self):
-
         return str(self.data)
 
     def initialize(self, layout, numGhostAgents=1000):
@@ -260,6 +259,7 @@ class GameState:
         Creates an initial game state from a layout array (see layout.py).
         """
         self.data.initialize(layout, numGhostAgents)
+
 
 ############################################################################
 #                     THE HIDDEN SECRETS OF PACMAN                         #
@@ -282,11 +282,12 @@ class ClassicGameRules:
     def __init__(self, timeout=30):
         self.timeout = timeout
 
-    def newGame(self, layout, horizon, pacmanAgent, ghostAgents, display, quiet=False, catchExceptions=False):
+    def newGame(self, layout, pacmanAgent, ghostAgents, display, quiet=False, catchExceptions=False):
         agents = [pacmanAgent] + ghostAgents[:layout.getNumGhosts()]
+
         initState = GameState()
         initState.initialize(layout, len(ghostAgents))
-        game = Game(agents, horizon, display, self, catchExceptions=catchExceptions)
+        game = Game(agents, display, self, catchExceptions=catchExceptions)
         game.state = initState
         self.initialState = initState.deepCopy()
         self.quiet = quiet
@@ -402,12 +403,13 @@ class GhostRules:
     """
     GHOST_SPEED = 1.0
 
-    def getLegalActions(state, ghostIndex):
+    def getLegalActions(state : GameState, ghostIndex):
         """
         Ghosts cannot stop, and cannot turn around unless they
         reach a dead end, but can turn 90 degrees at intersections.
         """
         conf = state.getGhostState(ghostIndex).configuration
+
         possibleActions = Actions.getPossibleActions(
             conf, state.data.layout.walls)
         reverse = Actions.reverseDirection(conf.direction)
@@ -537,8 +539,6 @@ def readCommand(argv):
 
     parser.add_option('-n', '--numGames', dest='numGames', type='int',
                       help=default('the number of GAMES to play'), metavar='GAMES', default=1)
-    parser.add_option('-m', dest='maxHorizon', type='int',
-                      help=default('The maximum number of timesteps per game'), metavar='GAMES', default=-1)
     parser.add_option('-l', '--layout', dest='layout',
                       help=default(
                           'the LAYOUT_FILE from which to load the map layout'),
@@ -556,7 +556,7 @@ def readCommand(argv):
                           'the ghost agent TYPE in the ghostAgents module to use'),
                       metavar='TYPE', default='RandomGhost')
     parser.add_option('-k', '--numghosts', type='int', dest='numGhosts',
-                      help=default('The maximum number of ghosts to use'), default=4)
+                      help=default('The maximum number of ghosts to use'), default=8)
     parser.add_option('-z', '--zoom', type='float', dest='zoom',
                       help=default('Zoom the size of the graphics window'), default=1.0)
     parser.add_option('-f', '--fixRandomSeed', action='store_true', dest='fixRandomSeed',
@@ -577,6 +577,7 @@ def readCommand(argv):
                       help=default('Maximum length of time an agent can spend computing in a single game'), default=30)
 
     options, otherjunk = parser.parse_args(argv)
+
     if len(otherjunk) != 0:
         raise Exception('Command line input not understood: ' + str(otherjunk))
     args = dict()
@@ -590,19 +591,10 @@ def readCommand(argv):
     if args['layout'] == None:
         raise Exception("The layout " + options.layout + " cannot be found")
 
-    args['horizon'] = options.maxHorizon
-
     # Choose a Pacman agent
     noKeyboard = options.gameToReplay == None and (
         options.textGraphics or options.quietGraphics)
     pacmanType = loadAgent(options.pacman, noKeyboard)
-    if options.pacman == "PacmanDeepQAgent":
-        print("options.agentArgs", options.agentArgs)
-        layout_str = "layout_input={}".format(options.layout)
-        if options.agentArgs:
-            options.agentArgs += layout_str
-        else:
-            options.agentArgs = layout_str
     agentOpts = parseAgentArgs(options.agentArgs)
     if options.numTraining > 0:
         args['numTraining'] = options.numTraining
@@ -619,9 +611,10 @@ def readCommand(argv):
     # Choose a ghost agent
     ghostType = loadAgent(options.ghost, noKeyboard)# GhostType is class loaded by the name options.ghost
     #if (ghostType=="RandomGhost2"):  
-    args['ghosts'] = [ghostType(i+1) for i in range(options.numGhosts)]
+    args['ghosts'] = [ghostType(i+1, trueDist=args['layout'].trueDist) for i in range(options.numGhosts)]
     if("Eat" in options.ghost):
         GameState.TypeOfGhost="Eat"
+
     # Choose a display format
     if options.quietGraphics:
         import textDisplay
@@ -668,6 +661,7 @@ def loadAgent(pacman, nographics):
             continue
         moduleNames = [f for f in os.listdir(
             moduleDir) if f.endswith('gents.py')]
+        
         for modulename in moduleNames:
             try:
                 module = __import__(modulename[:-3])
@@ -703,16 +697,13 @@ def replayGame(layout, actions, display):
     display.finish()
 
 
-def runGames(layout, horizon, pacman, ghosts, display, numGames, record, numTraining=0, catchExceptions=False, timeout=30):
+def runGames(layout, pacman, ghosts, display, numGames, record, numTraining=0, catchExceptions=False, timeout=30):
     import __main__
     __main__.__dict__['_display'] = display
 
     rules = ClassicGameRules(timeout)
     games = []
-
     for i in range(numGames):
-        # if i % 10 == 0:
-        #     print("numGames played: [{}/{}]".format(i, numGames))
         beQuiet = i < numTraining
         if beQuiet:
                 # Suppress output and graphics
@@ -722,8 +713,9 @@ def runGames(layout, horizon, pacman, ghosts, display, numGames, record, numTrai
         else:
             gameDisplay = display
             rules.quiet = False
-        game = rules.newGame(layout, horizon, pacman, ghosts,
+        game = rules.newGame(layout, pacman, ghosts,
                              gameDisplay, beQuiet, catchExceptions)
+        
         game.run()
         if not beQuiet:
             games.append(game)
