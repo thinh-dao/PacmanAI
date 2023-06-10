@@ -290,7 +290,6 @@ _keyswaiting = {}
 # one call to keys_pressed() to get round a problem with auto repeat.
 _got_release = None
 
-
 def _keypress(event):
     global _got_release
     # remap_arrows(event)
