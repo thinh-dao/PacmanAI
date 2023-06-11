@@ -609,9 +609,12 @@ def readCommand(argv):
         options.numIgnore = int(agentOpts['numTrain'])
 
     # Choose a ghost agent
-    ghostType = loadAgent(options.ghost, noKeyboard)
-    args['ghosts'] = [ghostType(index=i+1, trueDist=args['layout'].trueDist) for i in range(options.numGhosts)]
-
+    ghostType = loadAgent(options.ghost, noKeyboard)# GhostType is class loaded by the name options.ghost
+    #if (ghostType=="RandomGhost2"):  
+    args['ghosts'] = [ghostType(i+1, trueDist=args['layout'].trueDist) for i in range(options.numGhosts)]
+    if("Eat" in options.ghost):
+        GameState.TypeOfGhost="Eat"
+        
     # Choose a display format
     if options.quietGraphics:
         import textDisplay
