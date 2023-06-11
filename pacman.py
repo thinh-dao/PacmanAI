@@ -595,6 +595,13 @@ def readCommand(argv):
     noKeyboard = options.gameToReplay == None and (
         options.textGraphics or options.quietGraphics)
     pacmanType = loadAgent(options.pacman, noKeyboard)
+    if options.pacman.endswith("MLPQAgent") or options.pacman.endswith("CNNQAgent"):
+        print("options.agentArgs", options.agentArgs)
+        layout_str = "layout_input={}".format(options.layout)
+        if options.agentArgs:
+            options.agentArgs += layout_str
+        else:
+            options.agentArgs = layout_str
     agentOpts = parseAgentArgs(options.agentArgs)
     if options.numTraining > 0:
         args['numTraining'] = options.numTraining
@@ -614,7 +621,7 @@ def readCommand(argv):
     args['ghosts'] = [ghostType(i+1, trueDist=args['layout'].trueDist) for i in range(options.numGhosts)]
     if("Eat" in options.ghost):
         GameState.TypeOfGhost="Eat"
-        
+
     # Choose a display format
     if options.quietGraphics:
         import textDisplay
@@ -646,7 +653,6 @@ def readCommand(argv):
         sys.exit(0)
     return args
 
-
 def loadAgent(pacman, nographics):
     # Looks through all pythonPath Directories for the right module,
     pythonPathStr = os.path.expandvars("$PYTHONPATH")
@@ -674,7 +680,6 @@ def loadAgent(pacman, nographics):
                 return getattr(module, pacman)
     raise Exception('The agent ' + pacman +
                     ' is not specified in any *Agents.py.')
-
 
 def replayGame(layout, actions, display):
     import pacmanAgents

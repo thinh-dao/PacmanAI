@@ -7,6 +7,7 @@ import copy
 import os
 import time
 from torch.utils.tensorboard import SummaryWriter
+from input_pipelines import Input
 
 import numpy as np
 
@@ -42,44 +43,15 @@ class PacmanMLPQAgent(PacmanQAgent):
         else:
             layout_instantiated = layout_input
 
-        print(layout_input)
-        
-        self.wall_pos = self.get_walls_position(layout_instantiated)
-        self.state_dim = self.get_state_dim(layout_instantiated)
+        self.input = Input(layout_instantiated)
+        self.get_features = self.input.get_features
+        self.state_dim = self.input.state_dim
         self.initialize_q_networks(self.state_dim)
 
         self.doubleQ = doubleQ
         if self.doubleQ:
             self.target_update_rate = -1
-
         self.writer = SummaryWriter("summary/")
-
-    def get_walls_position(self, layout):
-        res = []
-        wall_state = layout.walls.data
-        height = len(wall_state)
-        width = len(wall_state[0])
-        for i in range(height):
-            for j in range(width):
-                if wall_state[i][j] == True:
-                    res.append((i, j))
-
-        return res
-
-    def get_state_dim(self, layout):
-        pac_ft_size = 2
-        ghost_ft_size = 2 * layout.getNumGhosts()
-        food_capsule_ft_size = layout.width * layout.height
-        return pac_ft_size + ghost_ft_size + food_capsule_ft_size
-
-    def get_features(self, state):
-        pacman_state = np.array(state.getPacmanPosition())
-        ghost_state = np.array(state.getGhostPositions())
-        capsules = state.getCapsules()
-        food_locations = np.array(state.getFood().data).astype(np.float32)
-        for x, y in capsules:
-            food_locations[x][y] = 2
-        return np.concatenate((pacman_state, ghost_state.flatten(), food_locations.flatten()))
 
     def initialize_q_networks(self, state_dim, action_dim=5):
         from deepQNetwork import DeepQNetwork
@@ -110,6 +82,12 @@ class PacmanMLPQAgent(PacmanQAgent):
             reward = -10
         return reward
 
+    def action_encoding(self, action):
+        if action == 'Stop': return 0
+        if action == 'West': return 1
+        if action == 'North': return 2
+        if action == 'East': return 3
+        if action == 'South': return 4
 
     def compute_q_targets(self, minibatch, network = None, target_network=None, doubleQ=False):
         """Prepare minibatches
@@ -149,13 +127,6 @@ class PacmanMLPQAgent(PacmanQAgent):
                 return (Q_predict + error).to(self.device)
             else: 
                 return Q_target.to(self.device)
-
-    def action_encoding(self, action):
-        if action == 'Stop': return 0
-        if action == 'West': return 1
-        if action == 'North': return 2
-        if action == 'East': return 3
-        if action == 'South': return 4
 
     def update(self, state, action, nextState, reward):
         action_index = self.action_encoding(action)

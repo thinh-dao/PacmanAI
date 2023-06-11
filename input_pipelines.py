@@ -4,11 +4,37 @@ This file contains input pipelines for Neural Networks
 import numpy as np
 
 class Input:
-    def __init__(self, layout):
+    def __init__(self, layout, input_type):
+        self.layout = layout
         self.width = layout.width
         self.height = layout.height
         self.wall_pos = self.get_wall_pos()
+        self.input_type = input_type
 
+        if (self.network_type == "MLP_input1"):
+            self.get_features = self.MLP_input1
+            self.state_dim = 2 + 2 * layout.getNumGhosts() + layout.width * layout.height
+        elif (self.network_type == "MLP_input2"):
+            self.get_features = self.MLP_input2
+            self.state_dim = self.height * self.width 
+        elif (self.get_features == "CNN_input1"):
+            self.get_features = self.CNN_input1
+            self.state_dim = (self.height, self.width, 3)
+        elif (self.get_features == "CNN_input2"):
+            self.get_features = self.CNN_input2
+            self.state_dim = (self.height, self.width, 6)
+
+    def get_walls_position(self):
+        res = []
+        wall_state = self.layout.walls.data
+        height = len(wall_state)
+        width = len(wall_state[0])
+        for i in range(height):
+            for j in range(width):
+                if wall_state[i][j] == True:
+                    res.append((i, j))
+        return res
+    
     def MLP_input1(self, state):
         """
         Neurons represent the positions of pacman, ghosts, foods, capsules
@@ -158,7 +184,7 @@ class Input:
                     matrix[-1-i][j] = cell
 
             return matrix
-
+        
         def getCapsulesMatrix(state):
             """ Return matrix with capsule coordinates set to 1 """
             width, height = state.data.layout.width, state.data.layout.height
@@ -187,6 +213,7 @@ class Input:
         observation = np.swapaxes(observation, 0, 2)
 
         return observation
+        
 
         
         

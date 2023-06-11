@@ -166,7 +166,6 @@ class Layout:
         # trueDist[w][h][w][h]
         self.trueDist = None
         if preCalTrueDis == None:
-            print("tung")
             self.trueDist = [[[[0 for i in range(self.height)] for j in range(self.width)] for k in range(self.height)] for l in range(self.width)]
 
             for x in range(self.width):
