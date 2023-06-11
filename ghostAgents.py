@@ -78,6 +78,7 @@ class HorizontalGhostEat(GhostAgent):
                 dist[a] = 1.0
         dist.normalize()
         return dist
+     
 class VerticalGhost(GhostAgent):
     def getDistribution(self, state):
         dist = util.Counter()
@@ -89,6 +90,7 @@ class VerticalGhost(GhostAgent):
                 dist[a] = 1.0
         dist.normalize()
         return dist
+    
 class VerticalGhostEat(GhostAgent):
     def getDistribution(self, state):
         dist = util.Counter()
