@@ -4,10 +4,10 @@ This file contains input pipelines for Neural Networks
 import numpy as np
 
 class Input:
-    def __init__(self, width, height, wall_pos):
-        self.width = width
-        self.height = height
-        self.wall_pos = wall_pos
+    def __init__(self, layout):
+        self.width = layout.width
+        self.height = layout.height
+        self.wall_pos = self.get_wall_pos()
 
     def MLP_input1(self, state):
         """
@@ -61,7 +61,7 @@ class Input:
         Output:
             (layout_width, layout_height, 3) numpy array
         """
-        image = np.zeros((width, height, 3))
+        image = np.zeros((self.width, self.height, 3))
 
         yellow = (255, 255, 0)
         red = (255, 0, 0)
