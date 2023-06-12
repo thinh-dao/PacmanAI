@@ -8,11 +8,11 @@ import os
 import time
 from torch.utils.tensorboard import SummaryWriter
 from input_pipelines import Input
-
 import numpy as np
+from deepQNetwork import MLP, CNN
 
 class PacmanMLPQAgent(PacmanQAgent):
-    def __init__(self, layout_input="smallGrid", target_update_rate=300, doubleQ=True, train=True, networkType="MLP", **args):
+    def __init__(self, layout_input="smallGrid", target_update_rate=300, doubleQ=True, train=False, **args):
         PacmanQAgent.__init__(self, **args)
         self.model = None
         self.target_model = None
@@ -28,7 +28,6 @@ class PacmanMLPQAgent(PacmanQAgent):
         self.min_transitions_before_training = 50000
         self.train = train
         self.layout_input = layout_input
-        self.networkType = networkType
 
         if self.train == False:
             self.min_transitions_before_training = 0
@@ -43,7 +42,7 @@ class PacmanMLPQAgent(PacmanQAgent):
         else:
             layout_instantiated = layout_input
 
-        self.input = Input(layout_instantiated)
+        self.input = Input(layout_instantiated, "MLP_input2")
         self.get_features = self.input.get_features
         self.state_dim = self.input.state_dim
         self.initialize_q_networks(self.state_dim)
@@ -54,9 +53,8 @@ class PacmanMLPQAgent(PacmanQAgent):
         self.writer = SummaryWriter("summary/")
 
     def initialize_q_networks(self, state_dim, action_dim=5):
-        from deepQNetwork import DeepQNetwork
-        self.model = DeepQNetwork(state_dim, action_dim)
-        self.target_model = DeepQNetwork(state_dim, action_dim)
+        self.model = MLP(state_dim, action_dim)
+        self.target_model = MLP(state_dim, action_dim)
         path = os.path.join("save_models/", "MLP_" + self.layout_input + ".pth")
         if os.path.exists(path):
             print("Load weights")
@@ -67,7 +65,9 @@ class PacmanMLPQAgent(PacmanQAgent):
         """
           Should return Q(state,action) as predicted by self.model
         """
+        print(state)
         feats = torch.from_numpy(self.get_features(state)).float().to(self.device)
+        print(feats)
         action_index = self.action_encoding(action)
         return self.model.forward(feats)[action_index]
 
@@ -129,45 +129,46 @@ class PacmanMLPQAgent(PacmanQAgent):
                 return Q_target.to(self.device)
 
     def update(self, state, action, nextState, reward):
-        action_index = self.action_encoding(action)
-        done = nextState.isLose() or nextState.isWin()
-        reward = self.shape_reward(reward)
-        if nextState.isWin(): reward += 50
+        if self.train == True:
+            action_index = self.action_encoding(action)
+            done = nextState.isLose() or nextState.isWin()
+            reward = self.shape_reward(reward)
+            if nextState.isWin(): reward += 50
 
-        if self.counts is None:
-            x, y = np.array(state.getFood().data).shape
-            self.counts = np.ones((x, y))
+            if self.counts is None:
+                x, y = np.array(state.getFood().data).shape
+                self.counts = np.ones((x, y))
 
-        state = self.get_features(state)
-        nextState = self.get_features(nextState)
-        self.counts[int(state[0])][int(state[1])] += 1
+            state = self.get_features(state)
+            nextState = self.get_features(nextState)
+            self.counts[int(state[0])][int(state[1])] += 1
 
-        transition = (state, action_index, reward, nextState, done)
-        self.replay_memory.push(*transition)
+            transition = (state, action_index, reward, nextState, done)
+            self.replay_memory.push(*transition)
 
-        if len(self.replay_memory) < self.min_transitions_before_training:
-            self.epsilon = self.epsilon_explore
-        else:
-            self.epsilon = self.epsilon0 * (0.999) ** (self.update_amount // 1000)
-        
-        if len(self.replay_memory) > self.min_transitions_before_training and self.update_amount % self.update_frequency == 0:
-            minibatch = self.replay_memory.pop(self.model.batch_size)
-            states = np.vstack([x.state for x in minibatch])
+            if len(self.replay_memory) < self.min_transitions_before_training:
+                self.epsilon = self.epsilon_explore
+            else:
+                self.epsilon = self.epsilon0 * (0.999) ** (self.update_amount // 1000)
+            
+            if len(self.replay_memory) > self.min_transitions_before_training and self.update_amount % self.update_frequency == 0:
+                minibatch = self.replay_memory.pop(self.model.batch_size)
+                states = np.vstack([x.state for x in minibatch])
 
-            Q_target1 = self.compute_q_targets(minibatch, self.model, self.target_model, doubleQ=self.doubleQ)
+                Q_target1 = self.compute_q_targets(minibatch, self.model, self.target_model, doubleQ=self.doubleQ)
 
-            if self.doubleQ:
-                Q_target2 = self.compute_q_targets(minibatch, self.target_model, self.model, doubleQ=self.doubleQ)
+                if self.doubleQ:
+                    Q_target2 = self.compute_q_targets(minibatch, self.target_model, self.model, doubleQ=self.doubleQ)
 
-            states = torch.from_numpy(states).float().to(self.device)
-        
-            self.model.gradient_update(states, Q_target1)
-            if self.doubleQ:
-                self.target_model.gradient_update(states, Q_target2)
+                states = torch.from_numpy(states).float().to(self.device)
+            
+                self.model.gradient_update(states, Q_target1)
+                if self.doubleQ:
+                    self.target_model.gradient_update(states, Q_target2)
 
-        if self.target_update_rate > 0 and self.update_amount % self.target_update_rate == 0:
-            self.target_model.set_weights(copy.deepcopy(self.model.parameters))
-        self.update_amount += 1
+            if self.target_update_rate > 0 and self.update_amount % self.target_update_rate == 0:
+                self.target_model.set_weights(copy.deepcopy(self.model.parameters))
+            self.update_amount += 1
 
     def final(self, state):
         """Called at the end of each game."""

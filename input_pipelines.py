@@ -8,19 +8,19 @@ class Input:
         self.layout = layout
         self.width = layout.width
         self.height = layout.height
-        self.wall_pos = self.get_wall_pos()
+        self.wall_pos = self.get_walls_position()
         self.input_type = input_type
 
-        if (self.network_type == "MLP_input1"):
+        if (self.input_type == "MLP_input1"):
             self.get_features = self.MLP_input1
             self.state_dim = 2 + 2 * layout.getNumGhosts() + layout.width * layout.height
-        elif (self.network_type == "MLP_input2"):
+        elif (self.input_type == "MLP_input2"):
             self.get_features = self.MLP_input2
             self.state_dim = self.height * self.width 
-        elif (self.get_features == "CNN_input1"):
+        elif (self.input_type == "CNN_input1"):
             self.get_features = self.CNN_input1
             self.state_dim = (self.height, self.width, 3)
-        elif (self.get_features == "CNN_input2"):
+        elif (self.input_type == "CNN_input2"):
             self.get_features = self.CNN_input2
             self.state_dim = (self.height, self.width, 6)
 
@@ -51,7 +51,7 @@ class Input:
             food_locations[x][y] = 2
         return np.concatenate((pacman_state, ghost_state.flatten(), food_locations.flatten()))
 
-    def MLP_input2(self, state, width, height):
+    def MLP_input2(self, state):
         """
         Neurons represent the each grid in the layout
         Input:
@@ -59,16 +59,13 @@ class Input:
         Output:
             (state_dim,) numpy array
         """
-        features = np.zeros((width, height))
+        features = np.array(state.getFood().data).astype(int) * 5
         pacman_state = np.array(state.getPacmanPosition()).astype(int)
         features[pacman_state[0]][pacman_state[1]] = 1
         ghost_state = np.array(state.getGhostPositions()).astype(int)
-        capsules = state.getCapsules().astype(int)
-        food_locations = np.array(state.getFood().data).astype(int)
+        capsules = np.array(state.getCapsules()).astype(int)
         for (x, y) in ghost_state:
             features[x][y] = -1
-        for (x,y) in food_locations:
-            features[x][y] = 5
         for (x,y) in capsules:
             features[x][y] = 10
         return features.flatten().astype(np.float32)
@@ -78,7 +75,7 @@ class Input:
         Convert GameState object to RGB image
         Pacman -> Yellow
         Walls -> Blue
-        Ghost -> Red
+        Ghost -> Red(not scared) or Grey(scared)
         Empty Grids -> Black
         Food -> White
         Capsules -> Green
@@ -87,23 +84,29 @@ class Input:
         Output:
             (layout_width, layout_height, 3) numpy array
         """
-        image = np.zeros((self.width, self.height, 3))
-
+        image = np.stack([np.array(state.getFood().data) * 255 for _ in range(3)], axis=0).astype(int)
         yellow = (255, 255, 0)
         red = (255, 0, 0)
         white = (255, 255, 255)
+        grey = (128, 128, 128)
         green = (0, 128, 0)
         blue = (0, 0, 255)
 
-        pacman_state = np.array(state.getPacmanPosition()).astype(int)
-        for i in range(3):
-            x, y = pacman_state
-            image[x][y][i] = yellow[i]
+        for agentState in state.data.agentStates:
+            if not agentState.isPacman:
+                if agentState.scaredTimer > 0:
+                    x, y = agentState.configuration.getPosition()
+                    for i in range(3):
+                        image[x][y][i] = grey[i]
+                else:
+                    x, y = agentState.configuration.getPosition()
+                    for i in range(3):
+                        image[x][y][i] = red[i]
 
-        ghost_state = np.array(state.getGhostPositions()).astype(int)
-        for x, y in ghost_state:
-            for i in range(3):
-                image[x][y][i] = red[i]
+            else:
+                x, y = agentState.configuration.getPosition()
+                for i in range(3):
+                    image[x][y][i] = yellow[i]
 
         capsules = state.getCapsules().astype(int)
         for x, y in capsules:

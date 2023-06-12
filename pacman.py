@@ -515,6 +515,7 @@ def parseAgentArgs(str):
     opts = {}
     for p in pieces:
         if '=' in p:
+            print(p)
             key, val = p.split('=')
         else:
             key, val = p, 1
