@@ -84,43 +84,38 @@ class Input:
         Output:
             (layout_width, layout_height, 3) numpy array
         """
-        image = np.stack([np.array(state.getFood().data) * 255 for _ in range(3)], axis=0).astype(int)
-        yellow = (255, 255, 0)
-        red = (255, 0, 0)
-        white = (255, 255, 255)
-        grey = (128, 128, 128)
-        green = (0, 128, 0)
-        blue = (0, 0, 255)
+        image = np.stack([np.rot90(np.array(state.getFood().data)) * 255 for _ in range(3)], axis=0).astype(float).transpose(1,2,0)
+        yellow = (255., 255., 0.)
+        red = (255., 0., 0.)
+        grey = (128., 128., 128.)
+        green = (0., 128., 0.)
+        blue = (0., 0., 255.)
 
         for agentState in state.data.agentStates:
             if not agentState.isPacman:
                 if agentState.scaredTimer > 0:
-                    x, y = agentState.configuration.getPosition()
+                    y, x = agentState.configuration.getPosition()
                     for i in range(3):
-                        image[x][y][i] = grey[i]
+                        image[-1-int(x)][int(y)][i] = grey[i]
                 else:
-                    x, y = agentState.configuration.getPosition()
+                    y, x = agentState.configuration.getPosition()
                     for i in range(3):
-                        image[x][y][i] = red[i]
-
+                        image[-1-int(x)][int(y)][i] = red[i]
             else:
-                x, y = agentState.configuration.getPosition()
+                y, x = agentState.configuration.getPosition()
                 for i in range(3):
-                    image[x][y][i] = yellow[i]
+                    image[-1-int(x)][int(y)][i] = yellow[i]
 
-        capsules = state.getCapsules().astype(int)
-        for x, y in capsules:
+        capsules = state.getCapsules()
+        for y, x in capsules:
             for i in range(3):
-                image[x][y][i] = green[i]
-
-        food_locations = np.array(state.getFood().data).astype(int)
-        for x, y in food_locations:
+                image[-1-int(x)][int(y)][i] = green[i]
+                
+        for y, x in self.wall_pos:
             for i in range(3):
-                image[x][y][i] = white[i]
-
-        for x, y in self.wall_pos:
-            for i in range(3):
-                image[x][y][i] = blue[i]
+                image[-1-int(x)][int(y)][i] = blue[i]
+                
+        return image.astype(float) * 1/255
 
     def CNN_input2(self, state):
         """ Return wall, ghosts, food, capsules matrices """ 
@@ -131,7 +126,6 @@ class Input:
 
             for i in range(grid.height):
                 for j in range(grid.width):
-                    # Put cell vertically reversed in matrix
                     cell = 1 if grid[j][i] else 0
                     matrix[-1-i][j] = cell
             return matrix
@@ -215,7 +209,7 @@ class Input:
 
         observation = np.swapaxes(observation, 0, 2)
 
-        return observation
+        return observation.astype(float) * 1/255
         
 
         
