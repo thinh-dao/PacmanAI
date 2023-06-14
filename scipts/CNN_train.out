@@ -117,3 +117,8 @@ Reinforcement Learning Status:
 	Average Rewards over all training: -342.27
 	Average Rewards for last 100 episodes: -233.03
 	Episode took 106.58 seconds
+Reinforcement Learning Status:
+	Completed 2300 out of 10000 training episodes
+	Average Rewards over all training: -336.82
+	Average Rewards for last 100 episodes: -216.91
+	Episode took 105.70 seconds
