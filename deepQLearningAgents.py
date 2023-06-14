@@ -12,7 +12,7 @@ import numpy as np
 from deepQNetwork import MLP, CNN
 
 class PacmanMLPQAgent(PacmanQAgent):
-    def __init__(self, layout_input="smallGrid", target_update_rate=300, doubleQ=True, train=False, **args):
+    def __init__(self, layout_input="smallGrid", target_update_rate=300, doubleQ=True, train=True, **args):
         PacmanQAgent.__init__(self, **args)
         self.model = None
         self.target_model = None
@@ -25,10 +25,10 @@ class PacmanMLPQAgent(PacmanQAgent):
         self.update_frequency = 3
         self.counts = None
         self.replay_memory = ReplayBuffer(5000000)
-        self.min_transitions_before_training = 50000
+        self.min_transitions_before_training = 20000
         self.train = train
         self.layout_input = layout_input
-        self.save_frequency = 2500
+        self.save_frequency = 2000
 
         if self.train == False:
             self.min_transitions_before_training = 0
@@ -36,14 +36,15 @@ class PacmanMLPQAgent(PacmanQAgent):
             self.alpha = 0
             
         self.td_error_clipping = 50
-        torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        print(torch.cuda.is_available())
+        self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
         if isinstance(layout_input, str):
             layout_instantiated = layout.getLayout(layout_input)
         else:
             layout_instantiated = layout_input
 
-        self.input = Input(layout_instantiated, "MLP_input1")
+        self.input = Input(layout_instantiated, "MLP_input2")
         self.get_features = self.input.get_features
         self.state_dim = self.input.state_dim
         self.initialize_q_networks(self.state_dim)
@@ -51,12 +52,12 @@ class PacmanMLPQAgent(PacmanQAgent):
         self.doubleQ = doubleQ
         if self.doubleQ:
             self.target_update_rate = -1
-        self.writer = SummaryWriter("summary/MLP")
+        self.writer = SummaryWriter(f"summary/MLP_MediumClassic_{self.input.input_type}")
 
     def initialize_q_networks(self, state_dim, action_dim=5):
         self.model = MLP(state_dim, action_dim)
         self.target_model = MLP(state_dim, action_dim)
-        path = os.path.join("save_models/", "MLP_" + self.layout_input + ".pth")
+        path = os.path.join("save_models/", f"MLP_{self.layout_input}_{self.input.input_type}_.pth")
         if os.path.exists(path):
             print("Load weights")
             self.model.model.load_state_dict(torch.load(path))
@@ -148,7 +149,7 @@ class PacmanMLPQAgent(PacmanQAgent):
             if len(self.replay_memory) < self.min_transitions_before_training:
                 self.epsilon = self.epsilon_explore
             else:
-                self.epsilon = self.epsilon0 * (0.99) ** (self.update_amount // 1000)
+                self.epsilon = self.epsilon0 * (0.95) ** (self.update_amount // 1000)
             
             if len(self.replay_memory) > self.min_transitions_before_training and self.update_amount % self.update_frequency == 0:
                 minibatch = self.replay_memory.pop(self.model.batch_size)
@@ -212,6 +213,7 @@ class PacmanMLPQAgent(PacmanQAgent):
 
         # did we finish training?
         if self.train == True and self.episodesSoFar % self.save_frequency == 0:
+            print("here")
             if self.episodesSoFar != self.numTraining: 
                 model_name = "MLP_" + self.layout_input + "_" + str(self.episodesSoFar) + ".pth"
             else:
@@ -219,7 +221,7 @@ class PacmanMLPQAgent(PacmanQAgent):
             model_name = "MLP_" + self.layout_input + "_" + str(self.episodesSoFar) + ".pth"
             path = "save_models/"
             save_path = os.path.join(path, model_name)
-            torch.save(deepQNetwork, save_path)
+            torch.save(self.model.model, save_path)
 
 class PacmanCNNQAgent(PacmanQAgent):
     def __init__(self, layout_input="smallGrid", target_update_rate=300, doubleQ=True, train=True, **args):
@@ -237,10 +239,10 @@ class PacmanCNNQAgent(PacmanQAgent):
         self.state_history = 3
         # self.counts = None
         self.replay_memory = CNNReplayBuffer(capacity=5000000, frame_len=self.state_history)
-        self.min_transitions_before_training = 1000
+        self.min_transitions_before_training = 20000
         self.train = train
         self.layout_input = layout_input
-        self.save_frequency = 2500
+        self.save_frequency = 2000
         
         if self.train == False:
             self.min_transitions_before_training = 0
@@ -263,7 +265,7 @@ class PacmanCNNQAgent(PacmanQAgent):
         self.doubleQ = doubleQ
         if self.doubleQ:
             self.target_update_rate = -1
-        self.writer = SummaryWriter("summary/CNN_MediumClassic_Easy")
+        self.writer = SummaryWriter("summary/CNN_MediumClassic")
 
     def initialize_q_networks(self, state_dim, action_dim=5):
         self.model = CNN(state_dim, action_dim, self.state_history)
@@ -356,7 +358,7 @@ class PacmanCNNQAgent(PacmanQAgent):
             if len(self.replay_memory) < self.min_transitions_before_training:
                 self.epsilon = self.epsilon_explore
             else:
-                self.epsilon = self.epsilon0 * (0.99) ** (self.update_amount // 1000)
+                self.epsilon = self.epsilon0 * (0.95) ** (self.update_amount // 1000)
             
             if len(self.replay_memory) > self.min_transitions_before_training and self.update_amount % self.update_frequency == 0:
                 minibatch = self.replay_memory.pop(self.model.batch_size)
@@ -431,7 +433,7 @@ class PacmanCNNQAgent(PacmanQAgent):
                 model_name = "CNN_" + self.layout_input + ".pth"    
             path = "save_models/"
             save_path = os.path.join(path, model_name)
-            torch.save(deepQNetwork, save_path)
+            torch.save(self.model.model, save_path)
             
             
             

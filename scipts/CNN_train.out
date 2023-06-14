@@ -1,0 +1,119 @@
+2023-06-14 05:40:11.836487: I tensorflow/core/util/port.cc:110] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+2023-06-14 05:40:11.882660: I tensorflow/core/platform/cpu_feature_guard.cc:182] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 AVX512F AVX512_VNNI FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+2023-06-14 05:40:12.664920: W tensorflow/compiler/tf2tensorrt/utils/py_utils.cc:38] TF-TRT Warning: Could not find TensorRT
+options.agentArgs None
+layout_input=mediumClassic
+Running on  cuda
+Running on  cuda
+Beginning 10000 episodes of Training
+Reinforcement Learning Status:
+	Completed 100 out of 10000 training episodes
+	Average Rewards over all training: -455.34
+	Average Rewards for last 100 episodes: -455.34
+	Episode took 25.60 seconds
+Reinforcement Learning Status:
+	Completed 200 out of 10000 training episodes
+	Average Rewards over all training: -447.76
+	Average Rewards for last 100 episodes: -440.18
+	Episode took 27.01 seconds
+Reinforcement Learning Status:
+	Completed 300 out of 10000 training episodes
+	Average Rewards over all training: -447.54
+	Average Rewards for last 100 episodes: -447.10
+	Episode took 22.83 seconds
+Reinforcement Learning Status:
+	Completed 400 out of 10000 training episodes
+	Average Rewards over all training: -446.81
+	Average Rewards for last 100 episodes: -444.60
+	Episode took 26.14 seconds
+Reinforcement Learning Status:
+	Completed 500 out of 10000 training episodes
+	Average Rewards over all training: -444.68
+	Average Rewards for last 100 episodes: -436.19
+	Episode took 24.71 seconds
+Reinforcement Learning Status:
+	Completed 600 out of 10000 training episodes
+	Average Rewards over all training: -444.61
+	Average Rewards for last 100 episodes: -444.27
+	Episode took 19.83 seconds
+Reinforcement Learning Status:
+	Completed 700 out of 10000 training episodes
+	Average Rewards over all training: -444.08
+	Average Rewards for last 100 episodes: -440.89
+	Episode took 24.57 seconds
+Reinforcement Learning Status:
+	Completed 800 out of 10000 training episodes
+	Average Rewards over all training: -444.44
+	Average Rewards for last 100 episodes: -446.94
+	Episode took 27.50 seconds
+Reinforcement Learning Status:
+	Completed 900 out of 10000 training episodes
+	Average Rewards over all training: -443.69
+	Average Rewards for last 100 episodes: -437.69
+	Episode took 32.30 seconds
+Reinforcement Learning Status:
+	Completed 1000 out of 10000 training episodes
+	Average Rewards over all training: -438.02
+	Average Rewards for last 100 episodes: -387.04
+	Episode took 60.27 seconds
+Reinforcement Learning Status:
+	Completed 1100 out of 10000 training episodes
+	Average Rewards over all training: -430.00
+	Average Rewards for last 100 episodes: -349.72
+	Episode took 82.91 seconds
+Reinforcement Learning Status:
+	Completed 1200 out of 10000 training episodes
+	Average Rewards over all training: -421.84
+	Average Rewards for last 100 episodes: -332.15
+	Episode took 92.75 seconds
+Reinforcement Learning Status:
+	Completed 1300 out of 10000 training episodes
+	Average Rewards over all training: -409.97
+	Average Rewards for last 100 episodes: -267.53
+	Episode took 99.10 seconds
+Reinforcement Learning Status:
+	Completed 1400 out of 10000 training episodes
+	Average Rewards over all training: -399.06
+	Average Rewards for last 100 episodes: -257.27
+	Episode took 105.81 seconds
+Reinforcement Learning Status:
+	Completed 1500 out of 10000 training episodes
+	Average Rewards over all training: -387.60
+	Average Rewards for last 100 episodes: -227.14
+	Episode took 106.58 seconds
+Reinforcement Learning Status:
+	Completed 1600 out of 10000 training episodes
+	Average Rewards over all training: -377.97
+	Average Rewards for last 100 episodes: -233.40
+	Episode took 103.05 seconds
+Reinforcement Learning Status:
+	Completed 1700 out of 10000 training episodes
+	Average Rewards over all training: -368.28
+	Average Rewards for last 100 episodes: -213.32
+	Episode took 104.90 seconds
+Reinforcement Learning Status:
+	Completed 1800 out of 10000 training episodes
+	Average Rewards over all training: -361.79
+	Average Rewards for last 100 episodes: -251.51
+	Episode took 109.79 seconds
+Reinforcement Learning Status:
+	Completed 1900 out of 10000 training episodes
+	Average Rewards over all training: -356.00
+	Average Rewards for last 100 episodes: -251.66
+	Episode took 95.43 seconds
+Reinforcement Learning Status:
+	Completed 2000 out of 10000 training episodes
+	Average Rewards over all training: -351.41
+	Average Rewards for last 100 episodes: -264.27
+	Episode took 90.49 seconds
+Reinforcement Learning Status:
+	Completed 2100 out of 10000 training episodes
+	Average Rewards over all training: -347.47
+	Average Rewards for last 100 episodes: -268.61
+	Episode took 111.84 seconds
+Reinforcement Learning Status:
+	Completed 2200 out of 10000 training episodes
+	Average Rewards over all training: -342.27
+	Average Rewards for last 100 episodes: -233.03
+	Episode took 106.58 seconds

@@ -61,13 +61,13 @@ class Input:
         """
         features = np.array(state.getFood().data).astype(int) * 5
         pacman_state = np.array(state.getPacmanPosition()).astype(int)
-        features[pacman_state[0]][pacman_state[1]] = 1
+        features[-1-int(pacman_state[0])][pacman_state[1]] = 1
         ghost_state = np.array(state.getGhostPositions()).astype(int)
         capsules = np.array(state.getCapsules()).astype(int)
-        for (x, y) in ghost_state:
-            features[x][y] = -1
+        for (x,y) in ghost_state:
+            features[-1-int(x)][y] = -1
         for (x,y) in capsules:
-            features[x][y] = 10
+            features[-1-int(x)][y] = 10
         return features.flatten().astype(np.float32)
 
     def CNN_input1(self, state):
@@ -84,7 +84,9 @@ class Input:
         Output:
             (layout_width, layout_height, 3) numpy array
         """
-        image = np.stack([np.rot90(np.array(state.getFood().data)) * 255 for _ in range(3)], axis=0).astype(float).transpose(1,2,0)
+        food_loc = np.array(state.getFood().data) * 255.
+
+        image = np.stack([food_loc, food_loc, food_loc], axis=0).transpose(1,2,0)
         yellow = (255., 255., 0.)
         red = (255., 0., 0.)
         grey = (128., 128., 128.)
@@ -94,26 +96,20 @@ class Input:
         for agentState in state.data.agentStates:
             if not agentState.isPacman:
                 if agentState.scaredTimer > 0:
-                    y, x = agentState.configuration.getPosition()
-                    for i in range(3):
-                        image[-1-int(x)][int(y)][i] = grey[i]
+                    x, y = agentState.configuration.getPosition()
+                    image[-1-int(x)][int(y)] = grey
                 else:
-                    y, x = agentState.configuration.getPosition()
-                    for i in range(3):
-                        image[-1-int(x)][int(y)][i] = red[i]
+                    x, y = agentState.configuration.getPosition()
+                    image[-1-int(x)][int(y)] = red
             else:
-                y, x = agentState.configuration.getPosition()
-                for i in range(3):
-                    image[-1-int(x)][int(y)][i] = yellow[i]
+                x, y = agentState.configuration.getPosition()
+                image[-1-int(x)][int(y)] = yellow
 
         capsules = state.getCapsules()
-        for y, x in capsules:
-            for i in range(3):
-                image[-1-int(x)][int(y)][i] = green[i]
+        image[-1-int(x)][int(y)] = green
                 
-        for y, x in self.wall_pos:
-            for i in range(3):
-                image[-1-int(x)][int(y)][i] = blue[i]
+        for x, y in self.wall_pos:
+            image[-1-int(x)][int(y)] = blue
                 
         return image.astype(float) * 1/255
 
@@ -197,7 +193,7 @@ class Input:
         # Create observation matrix as a combination of
         # wall, pacman, ghost, food and capsule matrices
         # width, height = state.data.layout.width, state.data.layout.height 
-        width, height = self.params['width'], self.params['height']
+        width, height = self.width, self.height
         observation = np.zeros((6, height, width))
 
         observation[0] = getWallMatrix(state)
