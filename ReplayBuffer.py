@@ -77,7 +77,7 @@ class CNNReplayBuffer(object):
             
         recent_states = np.array(recent_states)
         frame_len,height,width,n_channels = recent_states.shape
-        return np.reshape(recent_states, (frame_len * n_channels, height, width))
+        return np.reshape(recent_states, (1, frame_len * n_channels, height, width))
 
     def push(self, state, action, reward, next_state, done):
         """Creates `Transition` and insert
@@ -100,9 +100,11 @@ class CNNReplayBuffer(object):
                
         if self.frame_idx == self.frame_len or done == True:
             recent_states = np.array(self.fixlen(self.most_recent_states))
+            next_states = np.array(self.fixlen(self.most_recent_states[1:] + [next_state]))
             frame_len ,height, width, n_channels = recent_states.shape
             recent_states = np.reshape(recent_states, (frame_len * n_channels, height, width))
-            transition = Transition(recent_states, action, reward, next_state, done)
+            next_states = np.reshape(next_states, (frame_len * n_channels, height, width))
+            transition = Transition(recent_states, action, reward, next_states, done)
             
             if len(self) < self.capacity:
                 self.memory.append(None)

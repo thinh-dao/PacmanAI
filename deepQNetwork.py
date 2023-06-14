@@ -8,7 +8,7 @@ class DeepQNetwork():
     of reinforcement learning.
     """
     def __init__(self, model):
-        self.device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+        self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         print("Running on ", self.device)
         self.model = model.to(self.device)
         self.learning_rate = 0.2

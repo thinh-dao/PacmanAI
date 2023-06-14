@@ -229,7 +229,11 @@ class PacmanCNNQAgent(PacmanQAgent):
         self.target_update_rate = target_update_rate
         self.update_amount = 0
         self.epsilon_explore = 1.0
-        self.epsilon0 = 0.5
+        self.epsilon_start = 0.7
+        self.epsilon_end = 0.1
+        print(self.numTraining)
+        self.epsilon_decay_rate = (self.epsilon_start - self.epsilon_end) / self.numTraining
+        
         self.epsilon = self.epsilon0
         self.discount = 0.9
         self.update_frequency = 3
@@ -240,7 +244,7 @@ class PacmanCNNQAgent(PacmanQAgent):
         self.train = train
         self.layout_input = layout_input
         self.save_frequency = 2500
-
+        
         if self.train == False:
             self.min_transitions_before_training = 0
             self.epsilon0 = 0
@@ -248,7 +252,6 @@ class PacmanCNNQAgent(PacmanQAgent):
             
         self.td_error_clipping = 50
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-        print(torch.cuda.is_available())
 
         if isinstance(layout_input, str):
             layout_instantiated = layout.getLayout(layout_input)
@@ -279,7 +282,7 @@ class PacmanCNNQAgent(PacmanQAgent):
           Should return Q(state,action) as predicted by self.model
         """
         state = self.get_features(state)
-        q_input = torch.tensor([self.replay_memory.get_q_input(state)], dtype=torch.float, device=self.device)
+        q_input = torch.tensor(self.replay_memory.get_q_input(state), dtype=torch.float, device=self.device)
         action_index = self.action_encoding(action)
         return self.model.forward(q_input)[0, action_index]
 
@@ -312,16 +315,11 @@ class PacmanCNNQAgent(PacmanQAgent):
             network = self.model
         if target_network is None:
             target_network = self.target_model
-        states = torch.from_numpy([x.state for x in minibatch]).float().to(self.device)
-        actions = torch.from_numpy([x.action for x in minibatch]).to(self.device)
-        rewards = torch.from_numpy(np.array([x.reward for x in minibatch])).float().to(self.device)
-        next_states = torch.from_numpy(np.vstack([x.next_state for x in minibatch])).float().to(self.device)
-        done = torch.from_numpy(np.array([x.done for x in minibatch])).float().to(self.device)
+        states,actions,rewards,next_states,done = minibatch
 
         # state_indices = states.astype(int)
         # state_indices = (state_indices[:, 0], state_indices[:, 1])
         # exploration_bonus = torch.from_numpy(1 / (2 * np.sqrt((self.counts[state_indices] / 100)))).float().to(self.device)
-
         with torch.no_grad():
             Q_predict = network.forward(states)
             Q_target = Q_predict.detach().clone()
@@ -365,15 +363,20 @@ class PacmanCNNQAgent(PacmanQAgent):
             
             if len(self.replay_memory) > self.min_transitions_before_training and self.update_amount % self.update_frequency == 0:
                 minibatch = self.replay_memory.pop(self.model.batch_size)
-                states = np.vstack([x.state for x in minibatch])
+                
+                states = torch.from_numpy(np.vstack([np.expand_dims(x.state, axis=0) for x in minibatch])).float().to(self.device)
+                actions = torch.from_numpy(np.array([x.action for x in minibatch])).to(self.device)
+                rewards = torch.from_numpy(np.array([x.reward for x in minibatch])).float().to(self.device)
+                next_states = torch.from_numpy(np.vstack([np.expand_dims(x.next_state, axis=0) for x in minibatch])).float().to(self.device)
+                done = torch.from_numpy(np.array([x.done for x in minibatch])).float().to(self.device)
+                
+                minibatch = (states, actions, rewards, next_states, done)
 
                 Q_target1 = self.compute_q_targets(minibatch, self.model, self.target_model, doubleQ=self.doubleQ)
 
                 if self.doubleQ:
                     Q_target2 = self.compute_q_targets(minibatch, self.target_model, self.model, doubleQ=self.doubleQ)
 
-                states = torch.from_numpy(states).float().to(self.device)
-            
                 self.model.gradient_update(states, Q_target1)
                 if self.doubleQ:
                     self.target_model.gradient_update(states, Q_target2)
