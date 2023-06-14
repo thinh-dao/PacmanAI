@@ -51,7 +51,7 @@ class PacmanMLPQAgent(PacmanQAgent):
         self.doubleQ = doubleQ
         if self.doubleQ:
             self.target_update_rate = -1
-        self.writer = SummaryWriter("summary/")
+        self.writer = SummaryWriter("summary/MLP")
 
     def initialize_q_networks(self, state_dim, action_dim=5):
         self.model = MLP(state_dim, action_dim)
@@ -229,11 +229,8 @@ class PacmanCNNQAgent(PacmanQAgent):
         self.target_update_rate = target_update_rate
         self.update_amount = 0
         self.epsilon_explore = 1.0
-        self.epsilon_start = 0.7
-        self.epsilon_end = 0.1
-        print(self.numTraining)
-        self.epsilon_decay_rate = (self.epsilon_start - self.epsilon_end) / self.numTraining
-        
+        self.epsilon0 = 0.5
+        # self.epsilon_decay_rate = (self.epsilon_start - self.epsilon_end) / self.numTraining
         self.epsilon = self.epsilon0
         self.discount = 0.9
         self.update_frequency = 3
@@ -266,7 +263,7 @@ class PacmanCNNQAgent(PacmanQAgent):
         self.doubleQ = doubleQ
         if self.doubleQ:
             self.target_update_rate = -1
-        self.writer = SummaryWriter("summary/")
+        self.writer = SummaryWriter("summary/CNN_MediumClassic_Easy")
 
     def initialize_q_networks(self, state_dim, action_dim=5):
         self.model = CNN(state_dim, action_dim, self.state_history)
