@@ -232,10 +232,9 @@ class PacmanMLPQAgent(PacmanQAgent):
         # did we finish training?
         if self.train == True and self.episodesSoFar % self.save_frequency == 0:
             if self.episodesSoFar != self.numTraining: 
-                model_name = "MLP_" + self.layout_input + "_" + str(self.episodesSoFar) + ".pth"
+                model_name = "MLP_" + self.layout_input + "_" + str(self.episodesSoFar) + "_" + self.input.input_type + ".pth"
             else:
-                model_name = "MLP_" + self.layout_input + ".pth"
-            model_name = "MLP_" + self.layout_input + "_" + str(self.episodesSoFar) + ".pth"
+                model_name = "MLP_" + self.layout_input + "_" + self.input.input_type + ".pth"  
             path = "save_models/"
             save_path = os.path.join(path, model_name)
             torch.save(self.model.model, save_path)
@@ -275,7 +274,7 @@ class PacmanCNNQAgent(PacmanQAgent):
         else:
             layout_instantiated = layout_input
 
-        self.input = Input(layout_instantiated, "CNN_input1")
+        self.input = Input(layout_instantiated, "CNN_input2")
         self.get_features = self.input.get_features
         self.state_dim = self.input.state_dim
         self.initialize_q_networks(self.state_dim)
@@ -464,9 +463,9 @@ class PacmanCNNQAgent(PacmanQAgent):
         # did we finish training?
         if self.train == True and self.episodesSoFar % self.save_frequency == 0:
             if self.episodesSoFar != self.numTraining: 
-                model_name = "CNN_" + self.layout_input + "_" + str(self.episodesSoFar) + ".pth"
+                model_name = "CNN_" + self.layout_input + "_" + str(self.episodesSoFar) + "_" + self.input.input_type + ".pth"
             else:
-                model_name = "CNN_" + self.layout_input + ".pth"    
+                model_name = "CNN_" + self.layout_input + "_" + self.input.input_type + ".pth"    
             path = "save_models/"
             save_path = os.path.join(path, model_name)
             torch.save(self.model.model, save_path)
