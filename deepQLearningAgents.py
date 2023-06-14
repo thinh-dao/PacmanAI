@@ -1,12 +1,11 @@
 import torch
-import deepQNetwork
+import wandb
 from qlearningAgents import PacmanQAgent
 from ReplayBuffer import ReplayBuffer, CNNReplayBuffer, PER_ReplayBuffer
 import layout
 import copy
 import os
 import time
-from torch.utils.tensorboard import SummaryWriter
 from input_pipelines import Input
 import numpy as np
 from deepQNetwork import MLP, CNN
@@ -19,8 +18,10 @@ class PacmanMLPQAgent(PacmanQAgent):
         self.target_update_rate = target_update_rate
         self.update_amount = 0
         self.epsilon_explore = 1.0
-        self.epsilon0 = 0.5
-        self.epsilon = self.epsilon0
+        self.epsilon_start = 0.6
+        self.epsilon_end = 0.1
+        self.decay_episode = int(self.numTraining * 0.9)
+        self.epsilon_decay_rate = (self.epsilon_start - self.epsilon_end) / self.decay_episode
         self.discount = 0.9
         self.update_frequency = 3
         self.counts = None
@@ -44,7 +45,7 @@ class PacmanMLPQAgent(PacmanQAgent):
         else:
             layout_instantiated = layout_input
 
-        self.input = Input(layout_instantiated, "MLP_input2")
+        self.input = Input(layout_instantiated, "MLP_input1")
         self.get_features = self.input.get_features
         self.state_dim = self.input.state_dim
         self.initialize_q_networks(self.state_dim)
@@ -52,7 +53,22 @@ class PacmanMLPQAgent(PacmanQAgent):
         self.doubleQ = doubleQ
         if self.doubleQ:
             self.target_update_rate = -1
-        self.writer = SummaryWriter(f"summary/MLP_MediumClassic_{self.input.input_type}")
+
+        wandb.init(
+            # set the wandb project where this run will be logged
+            project="Double Deep Q-Learning experiments",
+            name=self.input.input_type,
+            
+            # track hyperparameters and run metadata
+            config={
+            "learning_rate": 0.05,
+            "discount_factor": 0.9,
+            "epsilon_start": 0.6,
+            "epsilon_end": 0.1,
+            "architecture": "MLP",
+            "epochs": 10000,
+            }
+        )
 
     def initialize_q_networks(self, state_dim, action_dim=5):
         self.model = MLP(state_dim, action_dim)
@@ -149,7 +165,10 @@ class PacmanMLPQAgent(PacmanQAgent):
             if len(self.replay_memory) < self.min_transitions_before_training:
                 self.epsilon = self.epsilon_explore
             else:
-                self.epsilon = self.epsilon0 * (0.95) ** (self.update_amount // 1000)
+                self.epsilon = self.epsilon_start - self.epsilon_decay_rate * self.episodesSoFar
+            
+            if self.episodesSoFar >= self.decay_episode:
+                self.epsilon = self.epsilon_end
             
             if len(self.replay_memory) > self.min_transitions_before_training and self.update_amount % self.update_frequency == 0:
                 minibatch = self.replay_memory.pop(self.model.batch_size)
@@ -202,8 +221,7 @@ class PacmanMLPQAgent(PacmanQAgent):
                     NUM_EPS_UPDATE,windowAvg))
             train_time = (time.time() - self.episodeStartTime)
             print('\tEpisode took %.2f seconds' % train_time)
-            self.writer.add_scalar("Average reward", windowAvg, self.episodesSoFar)
-            self.writer.add_scalar("Training time", train_time, self.episodesSoFar)
+            wandb.log({"Average_Reward": windowAvg, "train_time": train_time})
             self.lastWindowAccumRewards = 0.0
             self.episodeStartTime = time.time()
 
@@ -213,7 +231,6 @@ class PacmanMLPQAgent(PacmanQAgent):
 
         # did we finish training?
         if self.train == True and self.episodesSoFar % self.save_frequency == 0:
-            print("here")
             if self.episodesSoFar != self.numTraining: 
                 model_name = "MLP_" + self.layout_input + "_" + str(self.episodesSoFar) + ".pth"
             else:
@@ -231,9 +248,10 @@ class PacmanCNNQAgent(PacmanQAgent):
         self.target_update_rate = target_update_rate
         self.update_amount = 0
         self.epsilon_explore = 1.0
-        self.epsilon0 = 0.5
-        # self.epsilon_decay_rate = (self.epsilon_start - self.epsilon_end) / self.numTraining
-        self.epsilon = self.epsilon0
+        self.epsilon_start = 0.6
+        self.epsilon_end = 0.1
+        self.decay_episode = int(self.numTraining * 0.9)
+        self.epsilon_decay_rate = (self.epsilon_start - self.epsilon_end) / self.decay_episode
         self.discount = 0.9
         self.update_frequency = 3
         self.state_history = 3
@@ -246,7 +264,7 @@ class PacmanCNNQAgent(PacmanQAgent):
         
         if self.train == False:
             self.min_transitions_before_training = 0
-            self.epsilon0 = 0
+            self.epsilon_start = self.epsilon_end = 0
             self.alpha = 0
             
         self.td_error_clipping = 50
@@ -265,7 +283,23 @@ class PacmanCNNQAgent(PacmanQAgent):
         self.doubleQ = doubleQ
         if self.doubleQ:
             self.target_update_rate = -1
-        self.writer = SummaryWriter("summary/CNN_MediumClassic")
+
+        wandb.init(
+            # set the wandb project where this run will be logged
+            project="Double Deep Q-Learning experiments",
+            name=self.input.input_type,
+            
+            # track hyperparameters and run metadata
+            config={
+            "learning_rate": 0.05,
+            "discount_factor": 0.9,
+            "epsilon_start": 0.6,
+            "epsilon_end": 0.1,
+            "architecture": "CNN",
+            "epochs": 10000,
+            }
+        )
+
 
     def initialize_q_networks(self, state_dim, action_dim=5):
         self.model = CNN(state_dim, action_dim, self.state_history)
@@ -358,7 +392,10 @@ class PacmanCNNQAgent(PacmanQAgent):
             if len(self.replay_memory) < self.min_transitions_before_training:
                 self.epsilon = self.epsilon_explore
             else:
-                self.epsilon = self.epsilon0 * (0.95) ** (self.update_amount // 1000)
+                self.epsilon = self.epsilon_start - self.epsilon_decay_rate * self.episodesSoFar
+            
+            if self.episodesSoFar >= self.decay_episode:
+                self.epsilon = self.epsilon_end
             
             if len(self.replay_memory) > self.min_transitions_before_training and self.update_amount % self.update_frequency == 0:
                 minibatch = self.replay_memory.pop(self.model.batch_size)
@@ -416,8 +453,7 @@ class PacmanCNNQAgent(PacmanQAgent):
                     NUM_EPS_UPDATE,windowAvg))
             train_time = (time.time() - self.episodeStartTime)
             print('\tEpisode took %.2f seconds' % train_time)
-            self.writer.add_scalar("Average reward", windowAvg, self.episodesSoFar)
-            self.writer.add_scalar("Training time", train_time, self.episodesSoFar)
+            wandb.log({"Average_Reward": windowAvg, "train_time": train_time})
             self.lastWindowAccumRewards = 0.0
             self.episodeStartTime = time.time()
 
