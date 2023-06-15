@@ -78,7 +78,7 @@ class HorizontalGhostEat(GhostAgent):
                 dist[a] = 1.0
         dist.normalize()
         return dist
-     
+      
 class VerticalGhost(GhostAgent):
     def getDistribution(self, state):
         dist = util.Counter()
@@ -90,18 +90,7 @@ class VerticalGhost(GhostAgent):
                 dist[a] = 1.0
         dist.normalize()
         return dist
-    
-class VerticalGhostEat(GhostAgent):
-    def getDistribution(self, state):
-        dist = util.Counter()
-        for a in state.getLegalActions(self.index):
-        # a is a string
-            if (a=="North" or a=="South"):
-                dist[a] = 10.0
-            else:
-                dist[a] = 1.0
-        dist.normalize()
-        return dist
+
 class DirectionalGhost(GhostAgent):
     "A ghost that prefers to rush Pacman, or flee when scared."
 
