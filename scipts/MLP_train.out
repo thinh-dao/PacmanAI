@@ -1,0 +1,21 @@
+options.agentArgs None
+layout_input=mediumClassic
+True
+Running on  cuda
+Running on  cuda
+Beginning 10000 episodes of Training
+Reinforcement Learning Status:
+	Completed 100 out of 10000 training episodes
+	Average Rewards over all training: -441.00
+	Average Rewards for last 100 episodes: -441.00
+	Episode took 24.11 seconds
+Reinforcement Learning Status:
+	Completed 200 out of 10000 training episodes
+	Average Rewards over all training: -441.33
+	Average Rewards for last 100 episodes: -441.66
+	Episode took 24.40 seconds
+Reinforcement Learning Status:
+	Completed 300 out of 10000 training episodes
+	Average Rewards over all training: -438.95
+	Average Rewards for last 100 episodes: -434.19
+	Episode took 25.08 seconds

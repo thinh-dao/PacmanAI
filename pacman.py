@@ -515,6 +515,7 @@ def parseAgentArgs(str):
     opts = {}
     for p in pieces:
         if '=' in p:
+            print(p)
             key, val = p.split('=')
         else:
             key, val = p, 1
@@ -595,6 +596,13 @@ def readCommand(argv):
     noKeyboard = options.gameToReplay == None and (
         options.textGraphics or options.quietGraphics)
     pacmanType = loadAgent(options.pacman, noKeyboard)
+    if options.pacman.endswith("MLPQAgent") or options.pacman.endswith("CNNQAgent"):
+        print("options.agentArgs", options.agentArgs)
+        layout_str = "layout_input={}".format(options.layout)
+        if options.agentArgs:
+            options.agentArgs += layout_str
+        else:
+            options.agentArgs = layout_str
     agentOpts = parseAgentArgs(options.agentArgs)
     if options.numTraining > 0:
         args['numTraining'] = options.numTraining
@@ -646,7 +654,6 @@ def readCommand(argv):
         sys.exit(0)
     return args
 
-
 def loadAgent(pacman, nographics):
     # Looks through all pythonPath Directories for the right module,
     pythonPathStr = os.path.expandvars("$PYTHONPATH")
@@ -674,7 +681,6 @@ def loadAgent(pacman, nographics):
                 return getattr(module, pacman)
     raise Exception('The agent ' + pacman +
                     ' is not specified in any *Agents.py.')
-
 
 def replayGame(layout, actions, display):
     import pacmanAgents
