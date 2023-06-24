@@ -25,8 +25,8 @@ class PacmanMLPQAgent(PacmanQAgent):
         self.discount = 0.9
         self.update_frequency = 3
         self.counts = None
-        self.replay_memory = ReplayBuffer(5000000)
-        self.min_transitions_before_training = 20000
+        self.replay_memory = ReplayBuffer(500000)
+        self.min_transitions_before_training = 10000
         self.train = train
         self.layout_input = layout_input
         self.save_frequency = 2000
@@ -255,7 +255,7 @@ class PacmanCNNQAgent(PacmanQAgent):
         self.update_frequency = 3
         self.state_history = 3
         # self.counts = None
-        self.replay_memory = CNNReplayBuffer(capacity=5000000, frame_len=self.state_history)
+        self.replay_memory = CNNReplayBuffer(capacity=500000, frame_len=self.state_history)
         self.min_transitions_before_training = 20000
         self.train = train
         self.layout_input = layout_input
