@@ -15,7 +15,7 @@ Link: https://inst.eecs.berkeley.edu/~cs188/sp21/projects/
 
 ### 2. Minimax Pacman & Ghosts
 - [x] Implement baseline algorithms of Minimax, Expectimax with Alpha-Beta pruning
-- [ ] Implement Minimax, Expectimax with Stochastic Gradient Descent (SGD) with hand-crafted feature sets for evaluation function
+- [x] Implement Minimax, Expectimax with Stochastic Gradient Descent (SGD) with hand-crafted feature sets for evaluation function
 
 ### 3. Reinforcement Learning
 - [x] Approximate Q-learning with hand-crafted feature sets
