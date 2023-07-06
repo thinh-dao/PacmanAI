@@ -48,7 +48,51 @@ class RandomGhost(GhostAgent):
             dist[a] = 1.0
         dist.normalize()
         return dist
+class RandomGhostEat(GhostAgent):
+    "A ghost that chooses a legal action uniformly at random."
 
+<<<<<<< HEAD
+=======
+    def getDistribution(self, state):
+        dist = util.Counter()
+        for a in state.getLegalActions(self.index):
+            dist[a] = 1.0
+        dist.normalize()
+        return dist
+class HorizontalGhost(GhostAgent):
+     def getDistribution(self, state):
+        dist = util.Counter()
+        for a in state.getLegalActions(self.index):
+            if (a=="East" or a=="West"):
+                dist[a] = 10.0
+            else:
+                dist[a] = 1.0
+        dist.normalize()
+        return dist
+class HorizontalGhostEat(GhostAgent):
+     def getDistribution(self, state):
+        dist = util.Counter()
+        for a in state.getLegalActions(self.index):
+            if (a=="East" or a=="West"):
+                dist[a] = 10.0
+            else:
+                dist[a] = 1.0
+        dist.normalize()
+        return dist
+      
+class VerticalGhost(GhostAgent):
+    def getDistribution(self, state):
+        dist = util.Counter()
+        for a in state.getLegalActions(self.index):
+        # a is a string
+            if (a=="North" or a=="South"):
+                dist[a] = 10.0
+            else:
+                dist[a] = 1.0
+        dist.normalize()
+        return dist
+
+>>>>>>> origin/master
 class DirectionalGhost(GhostAgent):
     "A ghost that prefers to rush Pacman, or flee when scared."
 
@@ -84,7 +128,7 @@ class DirectionalGhost(GhostAgent):
         else:
             bestScore = min(distancesToPacman)
             bestProb = self.prob_attack
-        bestActions = [action for action, distance in zip(
+            bestActions = [action for action, distance in zip(
             legalActions, distancesToPacman) if distance == bestScore]
 
         # Construct distribution
