@@ -35,7 +35,6 @@ class GhostAgent(Agent):
         "Returns a Counter encoding a distribution over actions from the provided state."
         util.raiseNotDefined()
 
-
 class RandomGhost(GhostAgent):
     "A ghost that chooses a legal action uniformly at random."
 
@@ -49,7 +48,6 @@ class RandomGhost(GhostAgent):
             dist[a] = 1.0
         dist.normalize()
         return dist
-
 
 class DirectionalGhost(GhostAgent):
     "A ghost that prefers to rush Pacman, or flee when scared."
