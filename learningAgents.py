@@ -222,6 +222,9 @@ class ReinforcementAgent(ValueEstimationAgent):
         """
           Called by Pacman game at the terminal state
         """
+        if self.lastState == None:
+            print(state)
+            print(self.episodesSoFar, self.numTraining, 'tunggggggggg')
         deltaReward = state.getScore() - self.lastState.getScore()
         self.observeTransition(self.lastState, self.lastAction, state, deltaReward)
         self.stopEpisode()

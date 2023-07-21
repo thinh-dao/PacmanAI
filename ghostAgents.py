@@ -35,7 +35,6 @@ class GhostAgent(Agent):
         "Returns a Counter encoding a distribution over actions from the provided state."
         util.raiseNotDefined()
 
-
 class RandomGhost(GhostAgent):
     "A ghost that chooses a legal action uniformly at random."
 
@@ -52,6 +51,8 @@ class RandomGhost(GhostAgent):
 class RandomGhostEat(GhostAgent):
     "A ghost that chooses a legal action uniformly at random."
 
+<<<<<<< HEAD
+=======
     def getDistribution(self, state):
         dist = util.Counter()
         for a in state.getLegalActions(self.index):
@@ -91,6 +92,7 @@ class VerticalGhost(GhostAgent):
         dist.normalize()
         return dist
 
+>>>>>>> origin/master
 class DirectionalGhost(GhostAgent):
     "A ghost that prefers to rush Pacman, or flee when scared."
 

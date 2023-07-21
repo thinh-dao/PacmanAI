@@ -63,6 +63,16 @@ def closestFood(pos, food, walls):
     # no food found
     return None
 
+def closestGhost(pos, state):
+    pos = (int(pos[0]), int(pos[1]))
+    min_dist = 10000000
+    ghosts = state.getGhostPositions()
+    for ghost in ghosts:
+        x_g = int(ghost[0])
+        y_g = int(ghost[1])
+        min_dist = min(min_dist, state.data.layout.trueDist[pos[0]][pos[1]][x_g][y_g])
+    return min_dist
+
 class SimpleExtractor(FeatureExtractor):
     """
     Returns simple features for a basic reflex Pacman:
@@ -95,9 +105,15 @@ class SimpleExtractor(FeatureExtractor):
             features["eats-food"] = 1.0
 
         dist = closestFood((next_x, next_y), food, walls)
+
         if dist is not None:
             # make the distance a number less than one otherwise the update
             # will diverge wildly
             features["closest-food"] = float(dist) / (walls.width * walls.height)
+
+        # find the closest ghost
+        # closestG = closestGhost((next_x, next_y), state)
+        # features['closest-ghost'] = float(closestG) / (walls.width * walls.height)
+
         features.divideAll(10.0)
         return features

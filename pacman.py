@@ -604,6 +604,10 @@ def readCommand(argv):
         else:
             options.agentArgs = layout_str
     agentOpts = parseAgentArgs(options.agentArgs)
+
+    if(options.pacman == 'PacmanDeepQAgent'):
+        agentOpts['layout_input'] = args['layout']
+    
     if options.numTraining > 0:
         args['numTraining'] = options.numTraining
         if 'numTraining' not in agentOpts:
@@ -617,11 +621,27 @@ def readCommand(argv):
         options.numIgnore = int(agentOpts['numTrain'])
 
     # Choose a ghost agent
+<<<<<<< HEAD
+    
+    if options.ghost == 'GhostProMax':
+        args['ghosts'] = []
+        
+        ghostType1 = loadAgent('DirectionalGhost', noKeyboard)
+        args['ghosts'].append(ghostType1(index=1, trueDist=args['layout'].trueDist))
+
+        ghostType2 = loadAgent('RandomGhost', noKeyboard)
+        for i in range(options.numGhosts - 1):
+            args['ghosts'].append(ghostType2(index=i+2, trueDist=args['layout'].trueDist))
+    else:
+        ghostType = loadAgent(options.ghost, noKeyboard)
+        args['ghosts'] = [ghostType(index=i+1, trueDist=args['layout'].trueDist) for i in range(options.numGhosts)]
+=======
     ghostType = loadAgent(options.ghost, noKeyboard)# GhostType is class loaded by the name options.ghost
     #if (ghostType=="RandomGhost2"):  
     args['ghosts'] = [ghostType(i+1, trueDist=args['layout'].trueDist) for i in range(options.numGhosts)]
     if("Eat" in options.ghost):
         GameState.TypeOfGhost="Eat"
+>>>>>>> origin/master
 
     # Choose a display format
     if options.quietGraphics:
@@ -741,7 +761,7 @@ def runGames(layout, pacman, ghosts, display, numGames, record, numTraining=0, c
         wins = [game.state.isWin() for game in games]
         winRate = wins.count(True) / float(len(wins))
         print('Average Score:', sum(scores) / float(len(scores)))
-        print('Scores:       ', ', '.join([str(score) for score in scores]))
+        # print('Scores:       ', ', '.join([str(score) for score in scores]))
         print('Win Rate:      %d/%d (%.2f)' %
               (wins.count(True), len(wins), winRate))
         print('Record:       ', ', '.join(

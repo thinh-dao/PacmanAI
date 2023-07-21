@@ -60,7 +60,8 @@ class QLearningAgent(ReinforcementAgent):
         if state not in self.Q:
           self.Q[state] = util.Counter()
         actions = self.getLegalActions(state)
-        if len(actions) == 0: return 0.0
+        if len(actions) == 0: 
+            return 0.0
         else:
             best_v = -1e10
             for action in actions:
@@ -163,7 +164,7 @@ class ApproximateQAgent(PacmanQAgent):
        and update.  All other QLearningAgent functions
        should work as is.
     """
-    def __init__(self, extractor='IdentityExtractor', **args):
+    def __init__(self, extractor='SimpleExtractor', **args):
         self.featExtractor = util.lookup(extractor, globals())()
         PacmanQAgent.__init__(self, **args)
         self.weights = util.Counter()
@@ -192,6 +193,7 @@ class ApproximateQAgent(PacmanQAgent):
         Q = self.getQValue(state, action)
         diff = (reward + self.discount * best_Q_next) - Q
         features = self.featExtractor.getFeatures(state, action)
+        # print(self.weights)
         for feature in features:
             self.weights[feature] = self.weights[feature] + self.alpha * diff * features[feature]
 
